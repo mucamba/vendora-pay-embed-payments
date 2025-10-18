@@ -282,7 +282,7 @@ widget.close();
         </div>
     </div>
 
-    <script src="https://cdn.vendorapay.com/widget/v1/vendorapay-widget.js"></script>
+    <script src="https://vendorapay.com/cdn/embed-widget.js"></script>
     <script>
         function processCustomDonation() {
             const amount = document.getElementById('custom-amount').value;
@@ -333,7 +333,7 @@ widget.close();
         </div>
     </div>
 
-    <script src="https://cdn.vendorapay.com/widget/v1/vendorapay-widget.js"></script>
+    <script src="https://vendorapay.com/cdn/embed-widget.js"></script>
     <script>
         function subscribeToPlan(plan, amount) {
             const widget = new VendoraPayWidget('SEU_WIDGET_KEY', {
@@ -444,52 +444,30 @@ const widget = new VendoraPayWidget('SEU_WIDGET_KEY', {
 ```
 
 ### Webhooks no Backend
+Receba notificações instantâneas quando pagamentos forem confirmados.
 
-Configure webhooks no dashboard da VendoraPay para receber notificações no seu servidor:
+Notificação Instantânea
+O webhook é acionado imediatamente após a confirmação do pagamento.
 
-```javascript
-// Exemplo de endpoint de webhook (Node.js)
-app.post('/webhook/vendorapay', async (req, res) => {
-    const signature = req.headers['x-vendorapay-signature'];
-    const payload = req.body;
-    
-    // Verificar assinatura
-    if (!verifySignature(signature, payload)) {
-        return res.status(401).send('Invalid signature');
-    }
-    
-    const { event, data } = payload;
-    
-    switch (event) {
-        case 'payment.completed':
-            await handlePaymentCompleted(data);
-            break;
-        case 'payment.failed':
-            await handlePaymentFailed(data);
-            break;
-        case 'payment.refunded':
-            await handlePaymentRefunded(data);
-            break;
-    }
-    
-    res.status(200).send('Webhook received');
-});
+Cabeçalhos de Segurança
+Para evitar phishing, todas as requisições de webhook incluem um cabeçalho de autenticação:
 
-async function handlePaymentCompleted(paymentData) {
-    // Atualizar banco de dados
-    await Order.update(
-        { status: 'paid' },
-        { where: { transactionId: paymentData.id } }
-    );
-    
-    // Enviar email de confirmação
-    await sendConfirmationEmail(paymentData);
-    
-    // Liberar produto/serviço
-    await releaseProduct(paymentData);
+ Copiar
+secretKey: SUA_CHAVE_SECRETA
+Corpo da Requisição
+```json
+{
+  "id": "txn_123456789",
+  "productId": "prod_abc123",
+  "method": "mpesa",
+  "paid": 1500,
+  "received": 1425,
+  "fee": 75,
+  "context": "Pagamento do curso de programação"
 }
 ```
-
+Obtendo sua Chave Secreta
+Sua chave secreta pode ser encontrada na mesma seção do dashboard onde você encontrou sua chave API.
 ## ❓ FAQ
 
 ### Como obtenho minha widget key?
